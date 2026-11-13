@@ -25,6 +25,11 @@ jobs:
         run: npm install
         working-directory: ./zhdem-mishu-github
 
+      - name: Создать www
+        run: |
+          mkdir -p www
+          cp inex.html www/index.html
+
       - name: Add and Sync Android Platform
         run: |
           rm -rf android
