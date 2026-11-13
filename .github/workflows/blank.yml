@@ -1,10 +1,28 @@
+name: Build APK
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21 # Критично для современных версий Capacitor
+
       - name: Install dependencies
         run: npm install
-        working-directory: ./zhdem-mishu-github
-
-      # ✅ Шаг сборки: убедитесь, что команда верная для вашего проекта
-      - name: Build web assets
-        run: npm run build # <-- Если проект на Ionic, замените на: npx ionic build
         working-directory: ./zhdem-mishu-github
 
       - name: Add and Sync Android Platform
@@ -13,3 +31,15 @@
           npx cap add android
           npx cap sync android
         working-directory: ./zhdem-mishu-github
+
+      - name: Build Debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+        working-directory: ./zhdem-mishu-github/android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: zhdem-mishu-apk
+          path: zhdem-mishu-github/android/app/build/outputs/apk/debug/app-debug.apk
