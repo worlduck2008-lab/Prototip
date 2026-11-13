@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ждём Мишу</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2b3022;--bg2:#1a1d14;--ink:#f3efe2;--dim:#c9c5b4;--accent:#e8b84a;--cell:rgba(243,239,226,.16);--sheet:#23271b;--line:rgba(243,239,226,.22);
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sheet:#23271b}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:'Oswald',Impact,'Arial Narrow',sans-serif;font-weight:300;color:var(--ink);background:var(--bg2);overflow:hidden}
+#bg{position:fixed;inset:0;background:radial-gradient(120% 80% at 50% 0%,var(--bg),var(--bg2));background-size:cover;background-position:center}
+#shade{position:fixed;inset:0;background:linear-gradient(180deg,rgba(10,12,6,.55),rgba(10,12,6,.35) 40%,rgba(10,12,6,.8))}
+main{position:relative;height:100%;display:flex;flex-direction:column;padding:18px 22px 20px;max-width:560px;margin:0 auto;overflow-y:auto}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{font-weight:700;font-size:1.6rem;letter-spacing:.02em}
+.gear{background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:1.3rem;cursor:pointer}
+.gear:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:260px;cursor:pointer;user-select:none}
+.num{font-weight:700;font-size:clamp(6rem,34vw,10.5rem);line-height:.95;color:var(--accent);text-shadow:0 4px 30px rgba(0,0,0,.5)}
+.unit{font-size:1.5rem;margin-top:6px}
+.tick{margin-top:10px;font-size:1.05rem;color:var(--dim);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.bar{height:14px;border-radius:7px;background:var(--cell);overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .8s}
+.pct{display:flex;justify-content:space-between;margin:0 0 8px;font-size:1.1rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stats div{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stats b{display:block;font-weight:500;font-size:1.5rem}
+.stats span{font-size:.8rem;color:var(--dim)}
+.grid{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.grid u{width:9px;height:9px;border-radius:2px;background:var(--cell)}
+.grid u.on{background:var(--accent)}
+.grid u.now{background:var(--ink);box-shadow:0 0 0 2px var(--accent)}
+.hint{font-size:.75rem;color:var(--dim);text-align:center;margin-top:8px}
+#sheet{position:fixed;left:0;right:0;bottom:0;background:var(--sheet);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 22px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .3s;max-width:560px;margin:0 auto;max-height:90%;overflow-y:auto}
+#sheet.open{transform:none}
+label{display:block;font-size:.9rem;color:var(--dim);margin:12px 0 5px}
+input[type=text],input[type=date]{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font:inherit;font-size:1.05rem;color-scheme:dark}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.btns{display:flex;gap:10px;margin-top:14px}
+button.b{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:rgba(243,239,226,.08);color:var(--ink);font:inherit;font-size:1rem;cursor:pointer}
+button.main{background:var(--accent);color:#1a1d14;border-color:var(--accent);font-weight:500;margin-top:18px;width:100%}
+#msg{font-size:.8rem;color:var(--accent);margin-top:8px;min-height:1em}
+.card{display:flex;gap:14px;align-items:center;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px}
+.ph{flex:none;width:84px;height:84px;border-radius:50%;border:2px solid var(--accent);background:rgba(243,239,226,.1) center/cover;color:var(--ink);font-size:1.6rem;cursor:pointer}
+.ct{flex:1;min-width:0}
+.ct h3{font-weight:700;font-size:1.3rem;color:var(--accent)}
+.ct p{font-size:.95rem;line-height:1.35;margin:4px 0 8px;color:var(--ink)}
+.ct .lk{background:none;border:0;border-bottom:1px dashed var(--dim);color:var(--dim);font:inherit;font-size:.85rem;margin-right:12px;padding:2px 0;cursor:pointer}
+#adjM,#wM{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(8,10,4,.7);padding:20px}
+#adjM.open,#wM.open{display:flex}
+#wRows{list-style:none;padding:0;margin:10px 0;max-height:52vh;overflow-y:auto}
+#wRows li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+#wRows b{font-weight:500;font-size:1.15rem}
+#wRows span{font-size:.8rem;color:var(--dim);text-align:right}
+#adjM .box,#wM .box{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:22px;width:100%;max-width:400px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div><div id="shade"></div>
+<main>
+  <header><h1 id="title">Ждём Мишу</h1><button class="gear" id="open" aria-label="Настройки">⚙</button></header>
+  <section class="hero" id="hero" tabindex="0" aria-label="Нажмите, чтобы сменить единицу">
+    <div class="num" id="num">0</div><div class="unit" id="unit">дней</div><div class="tick" id="tick"></div>
+  </section>
+  <div class="pct"><span id="pLabel">Прошло</span><b id="pct">0%</b></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="stats">
+    <div><b id="sPassed">0</b><span>дней прошло</span></div>
+    <div><b id="sTotal">0</b><span>дней всего</span></div>
+    <div><b id="sWeeks">0</b><span id="sWeeksL">недель осталось</span></div>
+  </div>
+  <div class="card">
+    <button class="ph" id="cPhoto" aria-label="Сменить фото"></button>
+    <div class="ct"><h3 id="cHead"></h3><p id="cText"></p>
+      <button class="lk" id="cWord"></button><button class="lk" id="cAgain">Другая формулировка</button><button class="lk" id="cList">Все слова</button></div>
+  </div>
+  <input type="file" id="pfile" accept="image/*" hidden>
+  <div class="grid" id="grid" aria-hidden="true"></div>
+  <p class="hint" id="hint">Нажмите на число — оно сменится на часы, недели, месяцы</p>
+</main>
+
+<div id="adjM" role="dialog" aria-modal="true" aria-labelledby="adjT">
+  <div class="box">
+    <h2 id="adjT" style="font-weight:500"></h2>
+    <label for="adj">Одно прилагательное в мужском роде</label>
+    <input type="text" id="adj" maxlength="24" autocomplete="off" placeholder="например: смелый">
+    <div id="adjMsg" style="font-size:.8rem;color:var(--accent);margin-top:8px;min-height:1em" role="status"></div>
+    <div class="btns"><button class="b" id="adjLater">Позже</button><button class="b main" id="adjOk" style="margin-top:0">Показать</button></div>
+  </div>
+</div>
+
+<div id="wM" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="box">
+    <h2 id="wTitle" style="font-weight:500">Введённые слова</h2>
+    <div id="wSrc" style="font-size:.8rem;color:var(--dim)"></div>
+    <ul id="wRows"></ul>
+    <button class="b main" id="wClose" style="margin-top:6px">Закрыть</button>
+  </div>
+</div>
+
+<section id="sheet" aria-label="Настройки">
+  <h2 style="font-weight:500">Настройки</h2>
+  <label for="name">Название</label><input type="text" id="name" maxlength="40">
+  <label for="who">Имя того, кого ждём</label><input type="text" id="who" maxlength="24">
+  <div class="row">
+    <div><label for="start">Начало</label><input type="date" id="start"></div>
+    <div><label for="end">Конец (до какой даты)</label><input type="date" id="end"></div>
+  </div>
+  <label>Фон</label>
+  <div class="btns" style="margin-top:0">
+    <button class="b" id="pick">Выбрать картинку</button>
+    <button class="b" id="reset">Сбросить</button>
+  </div>
+  <input type="file" id="file" accept="image/*" hidden>
+  <label>Введённые слова: <b id="wcount">0</b></label>
+  <div id="wlist" style="font-size:.9rem;color:var(--dim);max-height:84px;overflow-y:auto;line-height:1.5"></div>
+  <div class="btns" style="margin-top:8px"><button class="b" id="wopen">Открыть список</button><button class="b" id="wcsv">Поделиться списком (.csv)</button></div>
+  <div id="msg" role="status"></div>
+  <button class="b main" id="save">Готово</button>
+</section>
+
+<script>
+(function(){
+var K='zhdem-mishu-v1', DAY=86400000, mode=0, first=false;
+var S={name:'Ждём Мишу',start:iso(new Date()),end:iso(new Date(Date.now()+365*DAY)),bg:'',who:'Миша',adj:'',photo:'',v:0,words:[]};
+function iso(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(x<10?'0':'')+x}
+function parse(s){var p=s.split('-');return new Date(+p[0],p[1]-1,+p[2])}
+function $(i){return document.getElementById(i)}
+function load(){try{var r=localStorage.getItem(K);if(r){var o=JSON.parse(r);for(var k in o)S[k]=o[k]}else{first=true;setTimeout(openSheet,400)}}catch(e){}}
+function store(){try{localStorage.setItem(K,JSON.stringify(S));return true}catch(e){return false}}
+function plural(n,a){var m=n%100,k=n%10;if(m>10&&m<20)return a[2];if(k==1)return a[0];if(k>1&&k<5)return a[1];return a[2]}
+var U=[['день','дня','дней','дней'],['час','часа','часов','часов'],['неделя','недели','недель','недель'],['месяц','месяца','месяцев','месяцев']];
+function render(){
+  $('title').textContent=S.name||'Обратный отсчёт';document.title=S.name;
+  $('bg').style.backgroundImage=S.bg?'url('+S.bg+')':'';
+  var st=parse(S.start),en=parse(S.end),now=new Date();
+  var total=Math.max(1,Math.round((en-st)/DAY));
+  var left=en-now; if(left<0)left=0;
+  var p=Math.min(1,Math.max(0,(now-st)/(en-st||1)));
+  var daysLeft=Math.ceil(left/DAY), passed=Math.min(total,Math.max(0,Math.floor((now-st)/DAY)));
+  var v,ui;
+  if(mode==0){v=daysLeft}else if(mode==1){v=Math.ceil(left/3600000)}else if(mode==2){v=Math.ceil(daysLeft/7)}else{v=Math.ceil(daysLeft/30.44)}
+  $('num').textContent=v.toLocaleString('ru-RU');
+  $('unit').textContent=(left==0?'Время пришло!':plural(v,U[mode])+' осталось'.replace('осталось',plural(v,['остался','осталось','осталось'])));
+  if(left==0)$('unit').textContent='Миша дома! 🎉';
+  else $('unit').textContent=plural(v,U[mode])+' '+(v%10==1&&v%100!=11?'остался':'осталось');
+  var d=Math.floor(left/DAY),h=Math.floor(left%DAY/3600000),m=Math.floor(left%3600000/60000),s=Math.floor(left%60000/1000);
+  $('tick').textContent=d+' д  '+pad(h)+' ч  '+pad(m)+' м  '+pad(s)+' с';
+  $('pct').textContent=(p*100).toFixed(1).replace('.',',')+'%';
+  $('fill').style.width=(p*100)+'%';
+  $('sPassed').textContent=passed;$('sTotal').textContent=total;
+  $('sWeeks').textContent=Math.ceil(daysLeft/7);$('sWeeksL').textContent=plural(Math.ceil(daysLeft/7),['неделя','недели','недель'])+' осталось';
+  var g=$('grid'); if(g.dataset.k!==S.start+S.end+passed){
+    g.dataset.k=S.start+S.end+passed;var h2='';
+    if(total<=800){for(var i=0;i<total;i++)h2+='<u class="'+(i<passed?'on':i==passed?'now':'')+'"></u>'}
+    g.innerHTML=h2}
+}
+function pad(n){return n<10?'0'+n:''+n}
+function openSheet(){renderWords();$('name').value=S.name;$('who').value=S.who;$('start').value=S.start;$('end').value=S.end;$('msg').textContent='';$('sheet').classList.add('open')}
+$('open').onclick=openSheet;
+$('save').onclick=function(){
+  var s=$('start').value,e=$('end').value;
+  if(!s||!e){$('msg').textContent='Укажите обе даты.';return}
+  if(parse(e)<=parse(s)){$('msg').textContent='Конец должен быть позже начала.';return}
+  S.name=$('name').value.trim()||'Ждём Мишу';S.who=$('who').value.trim()||'Миша';S.start=s;S.end=e;store();render();renderCard();$('sheet').classList.remove('open')};
+$('hero').onclick=function(){mode=(mode+1)%4;render()};
+$('hero').onkeydown=function(e){if(e.key=='Enter'||e.key==' '){e.preventDefault();$('hero').click()}};
+$('pick').onclick=function(){$('file').click()};
+$('reset').onclick=function(){S.bg='';store();render();$('msg').textContent='Фон сброшен.'};
+$('file').onchange=function(){
+  var f=this.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){var im=new Image();
+    im.onload=function(){
+      var M=1400,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');
+      c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      S.bg=c.toDataURL('image/jpeg',.82);render();
+      $('msg').textContent=store()?'Фон обновлён.':'Фон применён, но не сохранится после закрытия.'};
+    im.onerror=function(){$('msg').textContent='Не удалось открыть картинку.'};
+    im.src=r.result};
+  r.readAsDataURL(f);this.value=''};
+var T=['{n} — {a} человек. Просто факт, без вариантов.','Все знают: {n} — самый {a} человек в округе. Без него даже таймер скучает.','Какой {n}? {A}. Какой ещё может быть тот, кого так ждут?','Диагноз: {a}. Пациент: {n}. Лечение: дождаться.','{n} — {a}, и этим всё сказано. Ждём, считаем дни.','Характер: {a}. Особые приметы: {n}. Статус: ждём.','Спроси кого угодно, каков {n}, — ответят одно: {a}.','{n} такой {a}, что дни тянутся дольше обычного.'];
+function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function renderCard(){
+  var w=S.who||'Миша',ph=$('cPhoto');
+  ph.style.backgroundImage=S.photo?'url('+S.photo+')':'';ph.textContent=S.photo?'':'📷';
+  if(!S.adj){$('cHead').textContent='Какой '+w+'?';$('cText').textContent='Введите одно прилагательное — и получите характеристику.';$('cWord').textContent='Охарактеризовать';$('cAgain').hidden=true;return}
+  var t=T[(hash(S.adj)+(S.v||0))%T.length];
+  $('cHead').textContent=w+' — '+S.adj;
+  $('cText').textContent=t.replace(/\{n\}/g,w).replace(/\{a\}/g,S.adj).replace(/\{A\}/g,cap(S.adj));
+  $('cWord').textContent='Изменить слово';$('cAgain').hidden=false}
+function openAdj(){$('adjT').textContent='Каким вы видите '+(S.who||'Мишу')+'?';$('adj').value=S.adj||'';$('adjMsg').textContent='';$('adjM').classList.add('open');setTimeout(function(){$('adj').focus()},50)}
+function closeAdj(){$('adjM').classList.remove('open')}
+function okAdj(){var v=$('adj').value.trim().toLowerCase();
+  if(!v||/\s/.test(v)){$('adjMsg').textContent='Введите одно слово без пробелов.';return}
+  S.adj=v;S.v=0;logWord(v);renderCard();closeAdj()}
+$('cWord').onclick=openAdj;$('adjLater').onclick=closeAdj;$('adjOk').onclick=okAdj;
+$('cAgain').onclick=function(){S.v=(S.v||0)+1;store();renderCard()};
+$('adj').onkeydown=function(e){if(e.key=='Enter')okAdj()};
+document.addEventListener('keydown',function(e){if(e.key=='Escape')closeAdj()});
+$('cPhoto').onclick=function(){$('pfile').click()};
+$('pfile').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){var im=new Image();im.onload=function(){
+    var M=500,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');
+    c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    S.photo=c.toDataURL('image/jpeg',.85);store();renderCard()};im.src=r.result};
+  r.readAsDataURL(f);this.value=''};
+function logWord(v){
+  var rec={word:v,who:S.who||'Миша',at:Date.now()};
+  (S.words=S.words||[]).push(rec);store();
+  try{claude.use('db').then(function(db){if(db)db.collection('words').add(rec).catch(function(){})}).catch(function(){})}catch(e){}}
+function renderWords(){
+  var w=S.words||[],c={};w.forEach(function(r){c[r.word]=(c[r.word]||0)+1});
+  $('wcount').textContent=w.length;
+  $('wlist').textContent=Object.keys(c).map(function(k){return k+(c[k]>1?' ×'+c[k]:'')}).join(', ')||'Пока пусто'}
+$('wcsv').onclick=function(){
+  var w=S.words||[];if(!w.length){$('msg').textContent='Список пока пуст.';return}
+  var rows=['слово,имя,дата'].concat(w.map(function(r){return [r.word,r.who,new Date(r.at).toISOString()].map(function(x){return '"'+String(x).replace(/"/g,'""')+'"'}).join(',')}));
+  var blob=new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'});
+  var file=new File([blob],'slova.csv',{type:'text/csv'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:'Слова'}).catch(function(){})}
+  else{var txt=w.map(function(r){return r.word}).join('\n');
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){$('msg').textContent='Список скопирован в буфер обмена.'}).catch(function(){$('msg').textContent='Не удалось сохранить список.'})}};
+function fmtD(t){return new Date(t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function showList(rows,src){
+  rows=rows.slice().sort(function(a,b){return b.at-a.at});
+  var ul=$('wRows');ul.textContent='';
+  $('wTitle').textContent='Введённые слова: '+rows.length;$('wSrc').textContent=src;
+  if(!rows.length){var e=document.createElement('li');e.textContent='Пока нет слов. Введите первое прилагательное.';ul.appendChild(e);return}
+  rows.forEach(function(r){var li=document.createElement('li'),b=document.createElement('b'),s=document.createElement('span');
+    b.textContent=r.word;s.textContent=(r.who||'')+' · '+fmtD(r.at);li.appendChild(b);li.appendChild(s);ul.appendChild(li)})}
+function openList(){
+  $('sheet').classList.remove('open');$('wM').classList.add('open');
+  showList(S.words||[],'Сохранено на этом устройстве');
+  try{claude.use('db').then(function(db){if(!db)return;
+    return db.collection('words').get().then(function(q){
+      var rows=q.docs.map(function(d){return d.data()}).filter(function(r){return r&&r.word});
+      if(rows.length)showList(rows,'Общая база слов')})}).catch(function(){})}catch(e){}}
+$('cList').onclick=openList;$('wopen').onclick=openList;
+$('wClose').onclick=function(){$('wM').classList.remove('open')};
+document.addEventListener('keydown',function(e){if(e.key=='Escape')$('wM').classList.remove('open')});
+load();render();renderCard();setInterval(render,1000);if(!first)setTimeout(openAdj,500);
+})();
+</script>
+</body>
+</html>
