@@ -19,28 +19,32 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21 # Критично для современных версий Capacitor
+          java-version: 21
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./zhdem-mishu-github # ✅ Указываем папку с кодом
+        working-directory: ./zhdem-mishu-github
+
+      # ✅ НОВЫЙ ШАГ: Сборка веб-ресурсов (создает папку www или dist)
+      - name: Build web assets
+        run: npm run build
+        working-directory: ./zhdem-mishu-github
 
       - name: Add and Sync Android Platform
         run: |
           rm -rf android
           npx cap add android
           npx cap sync android
-        working-directory: ./zhdem-mishu-github # ✅ Указываем папку с кодом
+        working-directory: ./zhdem-mishu-github
 
       - name: Build Debug APK
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
-        working-directory: ./zhdem-mishu-github/android # ✅ Заходим в сгенерированную папку android внутри проекта
+        working-directory: ./zhdem-mishu-github/android
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: zhdem-mishu-apk
-          # ✅ Обновляем путь к файлу, так как он теперь внутри вложенной папки
           path: zhdem-mishu-github/android/app/build/outputs/apk/debug/app-debug.apk
